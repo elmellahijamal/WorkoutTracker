@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: workout-tracker-db
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: WorkoutTracker123!
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - workout-network
+
+  api:
+    build: 
+      context: .
+      dockerfile: WorkoutTracker/Dockerfile
+    container_name: workout-tracker-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WorkoutTrackerDB;User Id=sa;Password=WorkoutTracker123!;TrustServerCertificate=true;
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sqlserver
+    networks:
+      - workout-network
+
+volumes:
+  sqlserver_data:
+
+networks:
+  workout-network:
+    driver: bridge
