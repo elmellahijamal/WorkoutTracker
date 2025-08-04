@@ -38,8 +38,20 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(WorkoutTracker.Application.Validators.CreateUserCommandValidator).Assembly);
 
 // Add DbContext
+//builder.Services.AddDbContext<WorkoutTrackerDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<WorkoutTrackerDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null);
+    });
+});
 
 // Add Services
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -65,6 +77,21 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<WorkoutTrackerDbContext>();
+    try
+    {
+        context.Database.EnsureCreated();
+        Console.WriteLine("Database created successfully!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database creation failed: {ex.Message}");
+    }
+}
+
 
 // Add Global Exception Middleware
 app.UseMiddleware<GlobalExceptionMiddleware>();

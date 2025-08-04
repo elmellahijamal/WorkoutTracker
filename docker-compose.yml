@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   sqlserver:
@@ -18,7 +17,7 @@ services:
   api:
     build: 
       context: .
-      dockerfile: WorkoutTracker/Dockerfile
+      dockerfile: Dockerfile
     container_name: workout-tracker-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development

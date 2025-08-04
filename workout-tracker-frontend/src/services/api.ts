@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5077/api'; // Update with your API URL
+//const API_BASE_URL = 'http://localhost:5077/api'; // Update with your API URL
+const API_BASE_URL = 'http://localhost:5000/api';  // For Docker
+
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

@@ -4,19 +4,27 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["WorkoutTracker/WorkoutTracker.csproj", "WorkoutTracker/"]
+
+# Copy project files with correct names
+COPY ["WorkoutTracker/WorkoutTracker.API.csproj", "WorkoutTracker/"]
 COPY ["WorkoutTracker.Application/WorkoutTracker.Application.csproj", "WorkoutTracker.Application/"]
 COPY ["WorkoutTracker.Domain/WorkoutTracker.Domain.csproj", "WorkoutTracker.Domain/"]
 COPY ["WorkoutTracker.Infrastructure/WorkoutTracker.Infrastructure.csproj", "WorkoutTracker.Infrastructure/"]
-RUN dotnet restore "WorkoutTracker/WorkoutTracker.csproj"
+
+# Restore packages
+RUN dotnet restore "WorkoutTracker/WorkoutTracker.API.csproj"
+
+# Copy everything
 COPY . .
+
+# Build
 WORKDIR "/src/WorkoutTracker"
-RUN dotnet build "WorkoutTracker.csproj" -c Release -o /app/build
+RUN dotnet build "WorkoutTracker.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "WorkoutTracker.csproj" -c Release -o /app/publish
+RUN dotnet publish "WorkoutTracker.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WorkoutTracker.dll"]
+ENTRYPOINT ["dotnet", "WorkoutTracker.API.dll"]
