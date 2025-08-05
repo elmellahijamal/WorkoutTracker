@@ -8,16 +8,15 @@ interface LoginResponse {
     name: string;
     email: string;
     createdAt: string;
+    role?: string;
   };
 }
 
-// Helper function to extract error message
 const getErrorMessage = (error: any): string => {
   if (error.response?.data?.message) {
     return error.response.data.message;
   }
   if (error.response?.data?.errors) {
-    // Handle validation errors
     const validationErrors = error.response.data.errors;
     const firstError = Object.values(validationErrors)[0];
     return Array.isArray(firstError) ? firstError[0] : firstError;

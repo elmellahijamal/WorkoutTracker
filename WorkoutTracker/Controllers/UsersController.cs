@@ -112,4 +112,21 @@ public class UsersController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpGet("coaches")]
+    public async Task<IActionResult> GetCoaches()
+    {
+        try
+        {
+            var query = new GetCoachesQuery();
+            var coaches = await _mediator.Send(query);
+            return Ok(coaches);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+
 }

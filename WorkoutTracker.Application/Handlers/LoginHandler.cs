@@ -37,7 +37,9 @@ namespace WorkoutTracker.Application.Handlers
                     Id = user.Id,
                     Name = user.Name,
                     Email = user.Email,
-                    CreatedAt = user.CreatedAt
+                    Username = user.Username,
+                    CreatedAt = user.CreatedAt,
+                    Role = user.Role.ToString()
                 }
             };
         }

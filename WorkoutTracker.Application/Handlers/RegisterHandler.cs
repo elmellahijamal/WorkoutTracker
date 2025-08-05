@@ -7,6 +7,7 @@ using WorkoutTracker.Application.DTOS;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Events;
 using WorkoutTracker.Domain.Interfaces;
+using WorkoutTracker.Domain.ValueObjects;
 using WorkoutTracker.Infrastructure;
 using WorkoutTracker.Infrastructure.Services;
 
@@ -35,8 +36,9 @@ namespace WorkoutTracker.Application.Handlers
             {
                 Name = request.Name,
                 Username = request.Username,
-                Email = "",
+                Email = request.Email ?? "",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = request.IsCoach ? UserRole.Coach : UserRole.User,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -56,7 +58,9 @@ namespace WorkoutTracker.Application.Handlers
                     Id = user.Id,
                     Name = user.Name,
                     Email = user.Email,
-                    CreatedAt = user.CreatedAt
+                    Username = user.Username,
+                    CreatedAt = user.CreatedAt,
+                    Role = user.Role.ToString()
                 }
             };
         }

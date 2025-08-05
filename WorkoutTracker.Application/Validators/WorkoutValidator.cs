@@ -16,8 +16,8 @@ namespace WorkoutTracker.Application.Validators
                 .Must(date => date >= DateTime.Today.AddDays(-30))
                 .WithMessage("Workout date cannot be more than 30 days in the past");
 
-            RuleFor(x => x.UserId)
-                .GreaterThan(0).WithMessage("Valid user ID is required");
+            /*RuleFor(x => x.UserId)
+                .GreaterThan(0).WithMessage("Valid user ID is required");*/
         }
     }
 

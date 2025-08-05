@@ -24,9 +24,11 @@ namespace WorkoutTracker.Infrastructure.Repositories
         public async Task<IEnumerable<Workout>> GetByUserIdAsync(int userId)
         {
             return await _context.Workouts
-                .Where(w => w.UserId == userId)
+                .Include(w => w.AssignedByCoach)
                 .Include(w => w.WorkoutExercises)
                 .ThenInclude(we => we.Exercise)
+                .Where(w => w.UserId == userId)
+                .OrderByDescending(w => w.Id)
                 .ToListAsync();
         }
 

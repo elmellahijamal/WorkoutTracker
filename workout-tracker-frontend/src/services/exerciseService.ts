@@ -33,4 +33,22 @@ export const exerciseService = {
       throw new Error(getErrorMessage(error));
     }
   },
+
+  updateExercise: async (id: number, data: any) => {
+    try {
+      const response = await api.put(`/exercises/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  deleteExercise: async (id: number) => {
+    try {
+      const response = await api.delete(`/exercises/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
 };

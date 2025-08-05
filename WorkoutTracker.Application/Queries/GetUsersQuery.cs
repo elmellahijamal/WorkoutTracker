@@ -8,7 +8,7 @@ using WorkoutTracker.Application.DTOS;
 
 namespace WorkoutTracker.Application.Queries
 {
-    public class GetUsersQuery : IRequest<List<UserDto>>
+    public class GetUsersQuery : IRequest<IEnumerable<UserDto>>
     {
     }
 }

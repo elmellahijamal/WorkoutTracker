@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logout } from '../../slices/authSlice';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ interface NavbarProps {
 
 const Navbar = ({ title, subtitle, showBackButton = false, backTo = '/dashboard', actions }: NavbarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
 
@@ -41,11 +42,11 @@ const Navbar = ({ title, subtitle, showBackButton = false, backTo = '/dashboard'
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-3">
             {/* Back button */}
             {showBackButton && (
-              <button 
+              <button
                 onClick={() => navigate(backTo)}
                 className="inline-flex items-center px-3 py-2 border border-slate-600 text-sm font-medium rounded-lg text-slate-300 bg-slate-700 hover:bg-slate-600 hover:text-white hover:border-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 group"
               >
@@ -55,24 +56,40 @@ const Navbar = ({ title, subtitle, showBackButton = false, backTo = '/dashboard'
                 Back to Dashboard
               </button>
             )}
-            
+
             {/* Custom actions */}
             {actions}
-            
-            {/* Default navigation buttons */}
+
+            {/* Role-based navigation buttons */}
             {!showBackButton && (
-              <button 
-                onClick={() => navigate('/exercises')}
-                className="inline-flex items-center px-4 py-2 border border-slate-600 text-sm font-medium rounded-lg text-slate-300 bg-slate-700 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Manage Exercises
-              </button>
+              <>
+                {user?.role === 'Coach' && location.pathname !== '/dashboard' && (
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="inline-flex items-center px-4 py-2 border border-green-600 text-sm font-medium rounded-lg text-green-400 bg-green-900/50 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                    Coach Dashboard
+                  </button>
+                )}
+
+                {user?.role !== 'Coach' && (
+                  <button
+                    onClick={() => navigate('/exercises')}
+                    className="inline-flex items-center px-4 py-2 border border-slate-600 text-sm font-medium rounded-lg text-slate-300 bg-slate-700 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Manage Exercises
+                  </button>
+                )}
+              </>
             )}
-            
-            <button 
+
+            <button
               onClick={handleLogout}
               className="inline-flex items-center px-4 py-2 border border-red-600 text-sm font-medium rounded-lg text-red-400 bg-red-900/50 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200"
             >

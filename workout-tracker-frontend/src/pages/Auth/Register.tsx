@@ -72,6 +72,18 @@ const Register = () => {
                 <p className="mt-2 text-sm text-red-400">{errors.username.message}</p>
               )}
             </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Email
+              </label>
+            <input
+              {...register('email')}
+              type="email"
+              id="email"
+              placeholder="Email"
+              className="block w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            </div>
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
@@ -87,6 +99,17 @@ const Register = () => {
                 <p className="mt-2 text-sm text-red-400">{errors.password.message}</p>
               )}
             </div>
+            <div className="flex items-center">
+  <input
+    {...register('isCoach')}
+    type="checkbox"
+    id="isCoach"
+    className="h-4 w-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500"
+  />
+  <label htmlFor="isCoach" className="ml-2 text-sm text-slate-300">
+    Register as Coach
+  </label>
+</div>
 
             {error && (
               <div className="bg-red-900/50 border border-red-800 rounded-lg p-3">

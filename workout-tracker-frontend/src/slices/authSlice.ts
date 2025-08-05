@@ -7,6 +7,7 @@ interface User {
   name: string;
   email: string;
   createdAt: string;
+  role?: string;
 }
 
 interface AuthState {
@@ -14,6 +15,7 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
   error: string | null;
+  // Remove duplicate role field - it's already in User interface
 }
 
 // Get both token and user from localStorage
@@ -27,14 +29,14 @@ const initialState: AuthState = {
 export const login = createAsyncThunk('auth/login', async (credentials: LoginFormData) => {
   const response = await authService.login(credentials);
   localStorage.setItem('token', response.token);
-  localStorage.setItem('user', JSON.stringify(response.user)); // Store user too
+  localStorage.setItem('user', JSON.stringify(response.user));
   return response;
 });
 
 export const register = createAsyncThunk('auth/register', async (userData: RegisterFormData) => {
   const response = await authService.register(userData);
   localStorage.setItem('token', response.token);
-  localStorage.setItem('user', JSON.stringify(response.user)); // Store user too
+  localStorage.setItem('user', JSON.stringify(response.user));
   return response;
 });
 
@@ -46,7 +48,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       localStorage.removeItem('token');
-      localStorage.removeItem('user'); // Remove user too
+      localStorage.removeItem('user');
     },
     clearError: (state) => {
       state.error = null;
@@ -60,7 +62,10 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
+        state.user = {
+          ...action.payload.user,
+          role: action.payload.user.role || 'User' 
+        };
         state.token = action.payload.token;
       })
       .addCase(login.rejected, (state, action) => {

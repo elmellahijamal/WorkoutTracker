@@ -195,6 +195,12 @@ public class WorkoutsController : ControllerBase
             var getQuery = new GetWorkoutByIdQuery { Id = workoutId };
             var workout = await _mediator.Send(getQuery);
 
+            if (workout == null)
+                return NotFound(new { message = "Workout not found." });
+
+            if (!workout.UserId.HasValue)
+                return BadRequest(new { message = "Cannot complete workout: no user assigned." });
+
             var updateCommand = new UpdateWorkoutCommand
             {
                 Id = workoutId,
@@ -205,7 +211,7 @@ public class WorkoutsController : ControllerBase
 
             await _mediator.Send(updateCommand);
 
-            var workoutCompletedEvent = new WorkoutCompletedEvent(workoutId, workout.UserId, workout.Name);
+            var workoutCompletedEvent = new WorkoutCompletedEvent(workoutId, workout.UserId.Value, workout.Name);
             await _mediator.Publish(workoutCompletedEvent);
 
             return Ok(new { Message = "Workout completed successfully!" });
@@ -218,11 +224,12 @@ public class WorkoutsController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An unexpected error occurred." });
+            return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
         }
     }
+
 
     [HttpPost("{workoutId}/start")]
     public async Task<IActionResult> StartWorkout(int workoutId)
@@ -232,7 +239,13 @@ public class WorkoutsController : ControllerBase
             var getQuery = new GetWorkoutByIdQuery { Id = workoutId };
             var workout = await _mediator.Send(getQuery);
 
-            var workoutStartedEvent = new WorkoutStartedEvent(workoutId, workout.UserId, workout.Name);
+            if (workout == null)
+                return NotFound(new { message = "Workout not found." });
+
+            if (!workout.UserId.HasValue)
+                return BadRequest(new { message = "Cannot start workout: no user assigned." });
+
+            var workoutStartedEvent = new WorkoutStartedEvent(workoutId, workout.UserId.Value, workout.Name);
             await _mediator.Publish(workoutStartedEvent);
 
             return Ok(new { Message = "Workout started successfully!" });
@@ -245,9 +258,73 @@ public class WorkoutsController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
+        }
+    }
+
+    [HttpGet("unassigned")]
+    public async Task<IActionResult> GetUnassignedWorkouts()
+    {
+        try
+        {
+            // Get workouts where UserId = 0 (unassigned)
+            var query = new GetWorkoutsQuery(0); // UserId = 0 means unassigned
+            var unassignedWorkouts = await _mediator.Send(query);
+            return Ok(unassignedWorkouts);
+        }
         catch (Exception)
         {
             return StatusCode(500, new { message = "An unexpected error occurred." });
         }
     }
+
+    [HttpPost("{workoutId}/assign")]
+    public async Task<IActionResult> AssignWorkout(int workoutId, AssignWorkoutCommand command)
+    {
+        try
+        {
+            command.WorkoutId = workoutId;
+            await _mediator.Send(command);
+            return Ok(new { Message = "Workout assigned successfully!" });
+        }
+        catch (BusinessException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { message = "An unexpected error occurred." });
+        }
+    }
+
+
+    [HttpPost("create-and-assign")]
+    public async Task<IActionResult> CreateAndAssignWorkout([FromBody] CreateWorkoutCommand command)
+    {
+        try
+        {
+            var workoutId = await _mediator.Send(command);
+            return Ok(new { WorkoutId = workoutId, message = "Workout created and assigned successfully!" });
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (BusinessException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Unexpected error occurred", detail = ex.Message });
+        }
+    }
+
+
 }

@@ -33,6 +33,8 @@ namespace WorkoutTracker.Application.Handlers
                 Date = w.Date,
                 IsCompleted = w.IsCompleted,
                 UserId = w.UserId,
+                CoachId = w.AssignedByCoachId,
+                CoachName = w.AssignedByCoach?.Name ?? "Unknown Coach",
                 Exercises = w.WorkoutExercises?.Select(we => new ExerciseDto
                 {
                     Id = we.Exercise.Id,
